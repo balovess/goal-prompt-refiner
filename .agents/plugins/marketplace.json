@@ -1,0 +1,21 @@
+{
+  "name": "goal-prompt-refiner",
+  "interface": {
+    "displayName": "Goal Prompt Refiner"
+  },
+  "plugins": [
+    {
+      "name": "goal-prompt-refiner",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/balovess/goal-prompt-refiner.git",
+        "ref": "main"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
