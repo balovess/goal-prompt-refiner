@@ -1,6 +1,6 @@
 interface:
   display_name: "Goal Prompt Refiner"
-  short_description: "Interview long work into verified goals"
-  default_prompt: "Use $goal-prompt-refiner to interview me and turn a long-running project request into a verified /goal prompt."
+  short_description: "Turn durable project work into verified Goals"
+  default_prompt: "Use $goal-prompt-refiner to turn my long-running project request into a verified /goal prompt."
 policy:
   allow_implicit_invocation: true

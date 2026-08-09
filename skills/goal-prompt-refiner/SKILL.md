@@ -1,6 +1,6 @@
 ---
 name: goal-prompt-refiner
-description: Turn a vague long-running project request into an interactive, project-grounded, verifiable Codex `/goal` prompt. Use only when the user asks for a Goal or durable work that needs multiple checkpoints, multiple turns, independent progress, and a validation loop. Do not use for short bug fixes, isolated edits, one-shot tasks, questions, estimates, or ordinary plans.
+description: Interview vague long-running project work into a verified, project-grounded Codex `/goal` prompt. Use for durable objectives that require multiple turns, autonomous progress, a validation loop, and an explicit stopping condition. Do not use for bug fixes, isolated edits, one-shot tasks, questions, estimates, or ordinary plans.
 ---
 
 # Goal Prompt Refiner
@@ -18,7 +18,7 @@ Use a Goal only when the work has all of these properties:
 - a realistic validation loop; and
 - a verifiable stopping condition.
 
-Treat a single bug fix, a small isolated edit, a one-off answer, or a narrow implementation request as normal work, not a Goal. State that conclusion briefly and explain why; do not generate a `/goal` prompt for it merely because the user used the word "goal".
+Treat a single bug fix, a small isolated edit, a one-off answer, or a narrow implementation request as normal work, not a Goal. State that conclusion briefly and explain why; do not generate a `/goal` prompt merely because the user used the word "goal".
 
 ## Ground The Conversation
 

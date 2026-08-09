@@ -1,7 +1,7 @@
 {
   "name": "goal-prompt-refiner",
   "interface": {
-    "displayName": "Goal Prompt Refiner"
+    "displayName": "Goal Prompt Refiner Marketplace"
   },
   "plugins": [
     {

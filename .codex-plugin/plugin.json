@@ -1,7 +1,7 @@
 {
   "name": "goal-prompt-refiner",
-  "version": "0.1.0",
-  "description": "Interview long-running project work into verified Codex Goals.",
+  "version": "0.1.1",
+  "description": "Turn durable project work into verified, project-grounded Codex Goals.",
   "author": {
     "name": "balovess",
     "url": "https://github.com/balovess"
@@ -9,19 +9,20 @@
   "homepage": "https://github.com/balovess/goal-prompt-refiner",
   "repository": "https://github.com/balovess/goal-prompt-refiner",
   "license": "MIT",
-  "keywords": ["codex", "goals", "project-planning"],
+  "keywords": ["codex", "goals", "requirements", "project-planning", "validation"],
   "skills": "./skills/",
   "interface": {
     "displayName": "Goal Prompt Refiner",
-    "shortDescription": "Interview long work into verified Goals",
-    "longDescription": "Turns vague, long-running project work into a project-grounded Codex Goal with explicit validation and stopping conditions.",
+    "shortDescription": "Define verified Goals for durable project work",
+    "longDescription": "Qualifies long-running work, grounds it in project facts, resolves material decisions, and produces a verified Codex Goal with explicit validation and stopping conditions.",
     "developerName": "balovess",
     "category": "Productivity",
     "capabilities": ["Interactive"],
     "websiteURL": "https://github.com/balovess/goal-prompt-refiner",
     "defaultPrompt": [
-      "Use Goal Prompt Refiner to turn my long-running project work into a verified /goal.",
-      "Help me decide whether this request qualifies as a Codex Goal."
+      "Turn my durable project objective into a verified Codex Goal.",
+      "Does this request qualify as a Codex Goal?",
+      "Prepare a project-grounded /goal for this migration."
     ],
     "brandColor": "#10A37F"
   }
