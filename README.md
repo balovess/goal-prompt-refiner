@@ -3,9 +3,10 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 Goal Prompt Refiner is a Codex plugin for turning an incomplete long-running
-project request into a verified, project-grounded `/goal` prompt. It qualifies
-the request, inspects the available project context, interviews the user about
-material decisions, and defines evidence-based completion gates.
+project request into one verified, project-grounded `/goal` prompt. It recovers
+the user's actual desired outcome, inspects the available project context,
+asks only about material decisions, defines evidence-based completion gates, and
+adds a durable project-local continuation record for work that spans runs.
 
 ## When to Use It
 
@@ -52,8 +53,11 @@ Use $skill-installer to install https://github.com/balovess/goal-prompt-refiner/
 1. Determines whether the request warrants a long-running Codex Goal.
 2. Collects repository facts before asking the user for information available in the project.
 3. Resolves only material user decisions, with clear tradeoffs and recommended defaults.
-4. Confirms a compact Goal contract before generating the final `/goal` prompt.
+4. Generates one coherent Goal once the desired outcome is clear; it does not
+   replace the final outcome with a first-phase Goal.
 5. Converts broad quality claims into project-appropriate tests, benchmarks, artifacts, and stopping conditions.
+6. Defines one canonical Goal record for resumable work, including changes,
+   decisions, validation evidence, remaining work, blockers, and risks.
 
 ## Use
 
@@ -64,8 +68,11 @@ natural language. For example:
 Use $goal-prompt-refiner to prepare a Goal for a full protocol-compatibility migration. It must preserve behavior, update documentation, and prove any performance claims with benchmarks.
 ```
 
-The final prompt is ready to paste into Codex as `/goal` after you confirm the
-proposed contract.
+The final prompt is ready to paste into Codex as `/goal`. Only unresolved
+decisions that materially change the scope, authority, compatibility, or
+acceptance criteria require confirmation before drafting. For a multi-run Goal,
+the default record location is `.codex/goals/<goal-slug>.md` unless the project
+already has a canonical tracker.
 
 ## Repository Layout
 
