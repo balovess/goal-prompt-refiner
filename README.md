@@ -51,18 +51,21 @@ Use $skill-installer to install https://github.com/balovess/goal-prompt-refiner/
 ## What It Does
 
 1. Determines whether the request warrants a long-running Codex Goal.
-2. Collects repository facts before asking the user for information available in the project.
-3. Resolves only material user decisions, with clear tradeoffs and recommended defaults.
-4. Generates one coherent Goal once the desired outcome is clear; it does not
+2. Uses interactive choices for material decisions instead of static questions
+   or questionnaires.
+3. Collects repository facts before asking the user for information available in the project.
+4. Resolves only material user decisions, with clear tradeoffs and recommended defaults.
+5. Generates one coherent Goal once the desired outcome is clear; it does not
    replace the final outcome with a first-phase Goal.
-5. Converts broad quality claims into project-appropriate tests, benchmarks, artifacts, and stopping conditions.
-6. Defines one canonical Goal record for resumable work, including changes,
+6. Converts broad quality claims into project-appropriate tests, benchmarks, artifacts, and stopping conditions.
+7. Defines one canonical Goal record for resumable work, including changes,
    decisions, validation evidence, remaining work, blockers, and risks.
 
 ## Use
 
-Invoke `$goal-prompt-refiner`, or describe a durable project objective in
-natural language. For example:
+Invoke `$goal-prompt-refiner` or describe a durable project objective in natural
+language. When a material decision is missing, the skill presents interactive
+choices rather than a static question. For example:
 
 ```text
 Use $goal-prompt-refiner to prepare a Goal for a full protocol-compatibility migration. It must preserve behavior, update documentation, and prove any performance claims with benchmarks.

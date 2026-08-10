@@ -1,6 +1,6 @@
 ---
 name: goal-prompt-refiner
-description: Turn a vague or detailed long-running project request into one copy-ready, project-grounded, verifiable Codex `/goal` prompt. Use when the user asks for a Goal or durable work that needs multiple checkpoints, independent progress, and a validation loop. Preserve one coherent final outcome; use an interview only when an undiscoverable decision materially changes scope, authority, compatibility, or acceptance. Do not use for short bug fixes, isolated edits, one-off answers, questions, estimates, or ordinary plans.
+description: Turn a vague or detailed long-running project request into one copy-ready, project-grounded, verifiable Codex `/goal` prompt through focused interactive decision refinement. Use when the user asks for a Goal or needs durable work with multiple checkpoints, independent progress, and a validation loop. Preserve one coherent final outcome; use interactive choices only when an undiscoverable decision materially changes scope, authority, compatibility, or acceptance. Do not use for short bug fixes, isolated edits, one-off answers, questions, estimates, or ordinary plans.
 ---
 
 # Goal Prompt Refiner
@@ -17,6 +17,18 @@ Use a Goal when the work has:
 - a falsifiable stopping condition.
 
 Treat a short bug fix, isolated edit, one-off answer, question, estimate, or ordinary plan as normal work. State that briefly instead of fabricating a `/goal`.
+
+## Use Interactive Decisions
+
+When a user decision is genuinely required, use the product's interactive choice control (`request_user_input` when available) instead of emitting a static question or questionnaire.
+
+1. Inspect repository facts before asking. Ask only when the answer cannot be discovered and materially changes scope, authority, compatibility, or acceptance.
+2. Present one decision at a time. Use two or three mutually exclusive options, put the recommended option first, and state the concise tradeoff for each option.
+3. Do not manually add an `Other` option when the interactive control supplies a free-form alternative. Preserve the user's selected option as an explicit Goal constraint or decision.
+4. After each selection, update the working understanding and continue with the next unresolved material decision. Do not repeat settled questions or ask about routine implementation details.
+5. Once the final objective and acceptance contract are clear, stop asking and produce exactly one copy-ready `/goal` prompt. Do not expose the choices as multiple Goal blocks or turn them into a first-phase Goal.
+
+If the user's initial request already defines the final outcome and acceptance gates, inspect the repository and draft the Goal directly. Interactive choices are for material ambiguity, not a mandatory interview. If no interactive choice control is available, use the shortest possible textual fallback and do not invent a decision.
 
 ## Understand The Real Goal
 
