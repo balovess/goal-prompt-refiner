@@ -1,6 +1,6 @@
 {
   "name": "goal-prompt-refiner",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Turn durable project work into verified, project-grounded Codex Goals.",
   "author": {
     "name": "balovess",
@@ -14,13 +14,13 @@
   "interface": {
     "displayName": "Goal Prompt Refiner",
     "shortDescription": "Define verified Goals for durable project work",
-    "longDescription": "Qualifies long-running work, grounds it in project facts, resolves material decisions, and produces a verified Codex Goal with explicit validation and stopping conditions.",
+    "longDescription": "Recovers the user's actual desired outcome, grounds it in project facts, resolves only material decisions, and produces one verified Codex Goal with checkpoints, validation, and explicit stopping conditions.",
     "developerName": "balovess",
     "category": "Productivity",
     "capabilities": ["Interactive"],
     "websiteURL": "https://github.com/balovess/goal-prompt-refiner",
     "defaultPrompt": [
-      "Turn my durable project objective into a verified Codex Goal.",
+      "Turn my durable project objective into one verified Codex Goal.",
       "Does this request qualify as a Codex Goal?",
       "Prepare a project-grounded /goal for this migration."
     ],
