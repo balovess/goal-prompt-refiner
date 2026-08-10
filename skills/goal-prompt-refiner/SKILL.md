@@ -5,7 +5,7 @@ description: Turn a vague or detailed long-running project request into one copy
 
 # Goal Prompt Refiner
 
-Recover the user's actual desired outcome from an ambiguous request, then produce one durable Goal with an observable final state. Treat checkpoints as progress inside that Goal, never as separate Goals or completion conditions, unless the user explicitly asks for multiple independent Goals.
+Recover the user's actual desired outcome from an ambiguous request, then produce one durable Goal with an observable final state. Treat checkpoints as progress inside that Goal, never as separate Goals or completion conditions, unless the user explicitly asks for multiple independent Goals. For work that may span multiple `/goal` runs, include a durable, project-local continuation record so later runs can resume from verified state instead of relying on conversation memory.
 
 ## Qualify The Request
 
@@ -49,6 +49,53 @@ Do not invent facts, commands, metrics, deadlines, permissions, compatibility pr
 
 Preserve dirty worktrees. Do not revert user changes. If before/after comparison is required, describe a recoverable baseline using a temporary copy, worktree, or snapshot.
 
+## Establish Durable Goal Memory
+
+For a Goal that can continue across turns or conversations, define one canonical project-local Goal record in the generated prompt. This is a continuation aid and evidence index, not hidden model memory, a second requirements system, or a completion condition.
+
+- Reuse an existing project tracker or progress document when it clearly serves this Goal. Do not create a duplicate merely because a new default path is available.
+- If no suitable record exists, use `.codex/goals/<goal-slug>.md`. Choose a repository-aligned alternative only when the project convention requires it.
+- Create this record only for work that genuinely spans turns or conversations. Keep it proportional: record meaningful changes, completed improvements, decisions, evidence, and risks, not every file read or trivial edit.
+- At the start of every resumed run, read the record, inspect the current worktree, and reconcile stale or unsupported entries. Current code, tests, and measured results remain authoritative.
+- After each meaningful change or checkpoint, update the same record before moving on. Do not wait until the end of a long run to reconstruct history.
+- Keep a compact current-state summary and an append-only change/decision log. Record the Goal objective and constraints, completed improvements, changed files or commits, decisions and rationale, focused validation, benchmark evidence, remaining work, blockers, risks, and the next concrete action.
+- Link to commands, tests, benchmark artifacts, and relevant files instead of pasting large logs. Never store secrets, credentials, tokens, or unnecessary private data.
+- Updating the record does not require a full test suite. Select validation from the risk and scope of the code change, using focused checks during normal work and broader checks at appropriate acceptance gates.
+- When the Goal finishes, record the final acceptance status, actual evidence, known deviations, and residual risk. Do not mark it complete merely because the record is updated.
+
+Use this compact structure unless the repository already defines an equivalent one:
+
+```markdown
+# Goal Record: <objective>
+
+## Objective and Constraints
+- Objective: <final outcome>
+- Constraints: <compatibility, platform, authority, or other binding limits>
+
+## Current State
+- Status: active | blocked | complete
+- Last verified: <date or commit>
+- Summary: <what is true now>
+- Completed improvements: <delivered changes since the previous checkpoint>
+- Next action: <one concrete action>
+
+## Acceptance Coverage
+| Requirement | Status | Evidence | Gap or risk |
+|---|---|---|---|
+
+## Change and Decision Log
+| Date | Change or decision | Rationale | Evidence |
+|---|---|---|---|
+
+## Validation and Benchmarks
+- Focused checks: <commands and results>
+- Broader checks: <commands and results, when run>
+- Benchmarks: <workload, environment, baseline, result, artifact>
+
+## Remaining Work, Blockers, and Risks
+- <item, owner or unblock condition, and next action>
+```
+
 ## Ask Only Material Questions
 
 Codex owns repository facts; the user owns decisions that cannot be discovered. Do not force a questionnaire when the request already supplies the needed contract.
@@ -73,12 +120,13 @@ Before output, ensure the single Goal states:
 2. explicit exclusions and non-goals;
 3. authoritative files/specs to read first;
 4. a canonical progress matrix or tracking artifact when the work spans modules;
-5. checkpoints that show progress but do not end the Goal;
-6. rules for preserving behavior, simplicity, performance, and user changes;
-7. focused validation during work and broader validation at appropriate checkpoints;
-8. a real benchmark protocol whenever performance matters;
-9. pause conditions and blocker handling;
-10. final acceptance gates and one explicit stopping condition.
+5. one durable Goal record and its resume/update rules when work spans runs;
+6. checkpoints that show progress but do not end the Goal;
+7. rules for preserving behavior, simplicity, performance, and user changes;
+8. focused validation during work and broader validation at appropriate checkpoints;
+9. a real benchmark protocol whenever performance matters;
+10. pause conditions and blocker handling;
+11. final acceptance gates and one explicit stopping condition.
 
 For performance work, require a reproducible before/after comparison using comparable inputs and the same relevant environment. Record actual throughput, latency/tail latency, CPU, memory, allocation, I/O, lock contention, or concurrency metrics when the workload supports them. Never promise a percentage improvement without a measured baseline.
 
@@ -110,6 +158,9 @@ In <repository or artifact>, complete <single final outcome>.
 ## Validation and Benchmarks
 ...
 
+## Durable Goal Record
+...
+
 ## Pause and Blocker Handling
 ...
 
@@ -121,6 +172,8 @@ The prompt must make the final state, not the plan, the deliverable. Include lan
 
 - checkpoints are internal progress markers, not completion conditions;
 - after each checkpoint, continue to the next unfinished independent work;
+- at the start of each resumed run, read and reconcile the canonical Goal record;
+- after each meaningful change or checkpoint, update that record with facts and evidence;
 - do not stop because a plan, baseline, module, partial test, or milestone is complete;
 - continue until every final acceptance gate is satisfied;
 - the final report lists delivered work, validation evidence, benchmark results, unresolved deviations, and residual risk.
@@ -136,6 +189,8 @@ Do not:
 - invent hard performance numbers, deadlines, compatibility guarantees, or permissions;
 - prescribe a technology such as io_uring, lock-free structures, or a new dependency before evidence supports it;
 - make full-suite testing the default after every edit when focused validation is sufficient;
+- create multiple progress or memory files for one Goal, or treat a stale record as authoritative without checking the repository;
+- store secrets or paste large raw logs into the Goal record;
 - make a roadmap or progress document the final deliverable;
 - declare completion at a checkpoint or because one subsystem is blocked.
 
@@ -151,5 +206,6 @@ Before returning the Goal, verify that it:
 - includes checkpoints without turning them into separate Goals;
 - uses focused validation during work and appropriate broad validation at final gates;
 - has a reproducible benchmark protocol when performance matters;
+- defines one resumable Goal record when the work can span runs, with reconciliation and update rules;
 - has a falsifiable stopping condition and explicit residual-risk reporting; and
 - contains no invented facts or unnecessary complexity.
