@@ -18,17 +18,17 @@ Use a Goal when the work has:
 
 Treat a short bug fix, isolated edit, one-off answer, question, estimate, or ordinary plan as normal work. State that briefly instead of fabricating a `/goal`.
 
-## Use Interactive Decisions
+## Ask Material Decisions
 
-When a user decision is genuinely required, use the product's interactive choice control (`request_user_input` when available) instead of emitting a static question or questionnaire.
+Ask only when the answer cannot be discovered, materially changes scope, authority, compatibility, or acceptance, and a reasonable default risks the wrong outcome. Inspect repository facts first.
 
-1. Inspect repository facts before asking. Ask only when the answer cannot be discovered and materially changes scope, authority, compatibility, or acceptance.
-2. Present one decision at a time. Use two or three mutually exclusive options, put the recommended option first, and state the concise tradeoff for each option.
-3. Do not manually add an `Other` option when the interactive control supplies a free-form alternative. Preserve the user's selected option as an explicit Goal constraint or decision.
-4. After each selection, update the working understanding and continue with the next unresolved material decision. Do not repeat settled questions or ask about routine implementation details.
-5. Once the final objective and acceptance contract are clear, stop asking and produce exactly one copy-ready `/goal` prompt. Do not expose the choices as multiple Goal blocks or turn them into a first-phase Goal.
+- Use `request_user_input` when available instead of a static question or questionnaire.
+- Present one decision at a time with two or three mutually exclusive options; put the recommended option first and state each tradeoff concisely.
+- Do not manually add `Other` when the control supplies a free-form alternative. Preserve the selected option as an explicit Goal constraint or decision.
+- After each selection, update the working understanding. Do not repeat settled questions or ask about routine implementation details.
+- Once the final objective and acceptance contract are clear, produce exactly one copy-ready `/goal` prompt.
 
-If the user's initial request already defines the final outcome and acceptance gates, inspect the repository and draft the Goal directly. Interactive choices are for material ambiguity, not a mandatory interview. If no interactive choice control is available, use the shortest possible textual fallback and do not invent a decision.
+If the initial request already defines the final outcome and acceptance gates, draft directly. Interactive choices are for material ambiguity, not a mandatory interview. If no choice control is available, use the shortest textual fallback and do not invent a decision.
 
 ## Understand The Real Goal
 
@@ -37,16 +37,16 @@ Do not equate a large scope with a first-phase deliverable. First determine what
 - Read the user's wording, examples, corrections, and acceptance language as requirements for the final output.
 - Separate the desired outcome from proposed implementation steps, investigation tasks, milestones, and documents.
 - If the user says the project should continue until a condition is met, preserve that persistence and make the condition the stopping rule.
-- If the user gives an example with a final target, working rules, checkpoints, and acceptance gates, follow that shape.
+- If the user gives an example with a final target, working rules, ordered phases, and acceptance gates, follow that shape.
 - If the user asks for one clear Goal, produce one Goal covering the complete requested outcome.
-- Put implementation stages inside one Goal as checkpoints. Explicitly state that checkpoints are not independent Goals and do not permit completion.
+- Put implementation stages inside one Goal as ordered phases with blocking exit gates. A passed phase gate permits the next phase but does not complete the Goal.
 - Do not replace the final outcome with a discovery-only, baseline-only, prioritization-only, or first-phase Goal unless the user explicitly asks for that narrower result.
 - Do not split a coherent outcome into numbered Goal blocks merely because it contains many modules or phases.
 - Split into multiple Goal blocks only when the user explicitly asks for multiple Goals/roadmap or the outcomes have incompatible stopping conditions and cannot share one final acceptance contract. Explain the reason briefly and ask before changing the requested shape.
 
 ## Enforce Sequential Phase Gates
 
-For multi-phase work, treat phases as ordered work packages with blocking exit gates, not as loose checkpoints.
+For multi-phase work, treat phases as ordered work packages with blocking exit gates, not as loose progress markers.
 
 - Define one active phase at a time. Record each phase's required outcomes, exclusions, validation evidence, and exit gate before starting it.
 - Use explicit phase states such as `not_started`, `in_progress`, `blocked`, `passed_locked`, and `reopened`. A phase containing any required `missing`, `partial`, or `unverified` item cannot become `passed_locked`.
@@ -88,60 +88,7 @@ For a Goal that can continue across turns or conversations, define one canonical
 - Updating the record does not require a full test suite. Select validation from the risk and scope of the code change, using focused checks during normal work and broader checks at appropriate acceptance gates.
 - When the Goal finishes, record the final acceptance status, actual evidence, known deviations, and residual risk. Do not mark it complete merely because the record is updated.
 
-Use this compact structure unless the repository already defines an equivalent one:
-
-```markdown
-# Goal Record: <objective>
-
-## Objective and Constraints
-- Objective: <final outcome>
-- Constraints: <compatibility, platform, authority, or other binding limits>
-
-## Ordered Phase Gates
-| Order | Phase | Required outcomes | Gate evidence | Status |
-|---|---|---|---|---|
-
-## Current State
-- Status: active | blocked | complete
-- Active phase: <phase name and order>
-- Passed and locked phases: <phase names and gate evidence>
-- Last verified: <date or commit>
-- Summary: <what is true now>
-- Completed improvements: <delivered changes since the previous checkpoint>
-- Next action: <one concrete action>
-
-## Acceptance Coverage
-| Requirement | Status | Evidence | Gap or risk |
-|---|---|---|---|
-
-## Change and Decision Log
-| Date | Change or decision | Rationale | Evidence |
-|---|---|---|---|
-
-## Validation and Benchmarks
-- Focused checks: <commands and results>
-- Broader checks: <commands and results, when run>
-- Benchmarks: <workload, environment, baseline, result, artifact>
-
-## Remaining Work, Blockers, Invalidation Events, and Risks
-- <item, owner or unblock condition, and next action>
-```
-
-## Ask Only Material Questions
-
-Codex owns repository facts; the user owns decisions that cannot be discovered. Do not force a questionnaire when the request already supplies the needed contract.
-
-Ask a question only when all of these are true:
-
-1. The answer cannot be found in the repository or the user's request.
-2. Different answers materially change the user's final outcome, external compatibility, authority, or stopping condition.
-3. A reasonable default would risk doing the wrong work.
-
-Ask at most one to three concise questions in a round, with the recommended default and tradeoff. Do not ask about facts Codex can inspect. Do not ask the user to choose routine commands, file names, test scope, or implementation details that can be selected from repository conventions.
-
-If an ambiguity is non-material, choose a repository-aligned default and state it in the Goal. If the user later provides an example or explicit contract, treat it as confirmation and draft the Goal instead of restarting the interview.
-
-When the user has already stated the desired final outcome, do not ask them to reconfirm that outcome merely because the work is broad. Ask only about unresolved boundaries that would change the result.
+Use [references/goal-record-template.md](references/goal-record-template.md) for the durable record unless the repository already defines an equivalent. Load it only for Goals that span runs.
 
 ## Define The Contract
 
@@ -231,7 +178,7 @@ Do not:
 - create multiple progress or memory files for one Goal, or treat a stale record as authoritative without checking the repository;
 - store secrets or paste large raw logs into the Goal record;
 - make a roadmap or progress document the final deliverable;
-- declare completion at a checkpoint or because one subsystem is blocked.
+- declare the Goal complete because one phase gate, module, or milestone passed, or because one subsystem is blocked.
 
 ## Final Check
 

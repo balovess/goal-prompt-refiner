@@ -89,6 +89,7 @@ already has a canonical tracker.
 .agents/plugins/marketplace.json          Git-backed plugin marketplace
 .codex-plugin/plugin.json                 Plugin manifest and UI metadata
 skills/goal-prompt-refiner/SKILL.md       Skill instructions and trigger rules
+skills/goal-prompt-refiner/references/   Detailed templates loaded when needed
 ```
 
 ## License
