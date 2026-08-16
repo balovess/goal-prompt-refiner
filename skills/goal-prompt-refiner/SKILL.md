@@ -5,7 +5,7 @@ description: Turn a vague or detailed long-running project request into one copy
 
 # Goal Prompt Refiner
 
-Recover the user's actual desired outcome from an ambiguous request, then produce one durable Goal with an observable final state. Put implementation work into ordered phases with hard transition gates inside that Goal; a passed phase gate permits the next phase but never completes the whole Goal. For work that may span multiple `/goal` runs, include a durable, project-local continuation record so later runs can resume from verified state instead of relying on conversation memory.
+Recover the user's actual desired outcome from an ambiguous request, then produce one durable Goal with an observable final state. Put implementation work into ordered phases with hard transition gates inside that Goal; a passed phase gate must immediately start the next phase in the same Goal run and never completes the whole Goal. For work that may span multiple `/goal` runs, include a durable, project-local continuation record so later runs can resume from verified state instead of relying on conversation memory.
 
 ## Qualify The Request
 
@@ -52,9 +52,18 @@ For multi-phase work, treat phases as ordered work packages with blocking exit g
 - Use explicit phase states such as `not_started`, `in_progress`, `blocked`, `passed_locked`, and `reopened`. A phase containing any required `missing`, `partial`, or `unverified` item cannot become `passed_locked`.
 - Finish the active phase completely before starting the next phase. Do not advance because a subset is complete, because another module is independent, or because the current phase is inconvenient.
 - If the active phase is blocked, work on its direct blockers and their validation. Do not switch to later phases or unrelated modules unless the user explicitly authorizes parallel tracks.
-- When the phase gate passes, record the exact evidence and relevant commit or artifact, mark the phase `passed_locked`, and advance to the next phase. A locked phase is not re-analyzed on every resumed run.
+- When the phase gate passes, record the exact evidence and relevant commit or artifact, mark the phase `passed_locked`, set the next phase to `in_progress`, and immediately begin that phase in the same Goal run. A phase boundary is never a stopping point: do not return control, ask the user to resume, pause, or produce a final completion report there. A locked phase is not re-analyzed on every resumed run.
 - Reopen a locked phase only when its source, specification, dependency, or environment changes; its evidence becomes invalid; a regression appears; or later integration exposes a concrete contradiction.
 - Use validation proportional to the phase risk. A phase gate may require focused checks; updating a record or making a small edit does not by itself require the full test suite.
+
+## Continue Until Goal Completion
+
+Treat phase completion as an internal transition, not as Goal completion.
+
+- Continue executing the next ordered phase immediately after the current phase is `passed_locked`; do not wait for a new user message or a manual `/goal resume`.
+- The Goal may end only after every phase is `passed_locked` and every final acceptance criterion passes.
+- Do not emit a final result, completion claim, or phase-only handoff while any phase or final criterion remains incomplete.
+- If an unavoidable external blocker prevents continuation, keep the Goal incomplete, record the blocker and the next unblock action, and do not claim that the Goal is complete. A phase boundary alone is never an external blocker.
 
 ## Ground The Conversation
 
@@ -152,7 +161,7 @@ The prompt must make the final state, not the plan, the deliverable. Include lan
 - each phase has a blocking exit gate and the next phase cannot start until the current gate passes;
 - `missing`, `partial`, or `unverified` required work means the current phase has failed its gate;
 - when a phase is blocked, continue with its direct blockers instead of skipping to later or unrelated phases;
-- after a phase gate passes, record evidence, mark that phase `passed_locked`, and advance to the next phase;
+- after a phase gate passes, record evidence, mark that phase `passed_locked`, and immediately start the next phase in the same Goal run; do not stop at a phase boundary, do not ask the user to resume, and do not return a phase-only result;
 - on resume, continue from the active phase and skip normal re-analysis of passed and locked phases;
 - reopen a locked phase only when an explicit invalidation condition is evidenced;
 - at the start of each resumed run, read and reconcile the canonical Goal record;
@@ -173,12 +182,14 @@ Do not:
 - prescribe a technology such as io_uring, lock-free structures, or a new dependency before evidence supports it;
 - make full-suite testing the default after every edit when focused validation is sufficient;
 - treat a partial or unverified phase as passed, or begin a later phase before the active phase gate passes;
+- stop, pause, ask the user to resume, or report completion merely because a phase gate passed;
 - switch to unrelated work merely because the active phase is blocked;
 - re-analyze a passed and locked phase without an explicit invalidation signal;
 - create multiple progress or memory files for one Goal, or treat a stale record as authoritative without checking the repository;
 - store secrets or paste large raw logs into the Goal record;
 - make a roadmap or progress document the final deliverable;
 - declare the Goal complete because one phase gate, module, or milestone passed, or because one subsystem is blocked.
+- end the Goal before every phase is locked and every final acceptance criterion has passed.
 
 ## Final Check
 
@@ -191,9 +202,11 @@ Before returning the Goal, verify that it:
 - distinguishes authoritative requirements from proposals and measurements from claims;
 - defines ordered phases with blocking exit gates without turning them into separate Goals;
 - prevents later phases from starting before the active phase gate passes;
+- requires immediate same-run continuation after a passed phase and forbids phase-boundary stopping or manual-resume handoff;
 - records passed and locked phases plus explicit invalidation conditions;
 - uses focused validation during work and appropriate broad validation at final gates;
 - has a reproducible benchmark protocol when performance matters;
 - defines one resumable Goal record when the work can span runs, with reconciliation and update rules;
-- has a falsifiable stopping condition and explicit residual-risk reporting; and
+- has a falsifiable stopping condition and explicit residual-risk reporting;
+- permits Goal completion only after every phase and final acceptance gate passes; and
 - contains no invented facts or unnecessary complexity.

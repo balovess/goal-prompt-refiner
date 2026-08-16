@@ -10,6 +10,7 @@
 
 ## Current State
 - Status: active | blocked | complete
+- Completion rule: use `complete` only after every phase is `passed_locked` and every final acceptance criterion passes
 - Active phase: <phase name and order>
 - Passed and locked phases: <phase names and gate evidence>
 - Last verified: <date or commit>
