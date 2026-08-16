@@ -1,6 +1,6 @@
 ---
 name: goal-prompt-refiner
-description: Turn a vague or detailed long-running project request into one copy-ready, project-grounded, verifiable Codex `/goal` prompt through focused interactive decision refinement and ordered phase gates. Use when the user asks for a Goal or needs durable work with multiple phases, independent progress, and a validation loop. Preserve one coherent final outcome; use interactive choices only when an undiscoverable decision materially changes scope, authority, compatibility, or acceptance. Do not use for short bug fixes, isolated edits, one-off answers, questions, estimates, or ordinary plans.
+description: Turn a vague or detailed long-running project request into one copy-ready, project-grounded, verifiable Codex `/goal` prompt through focused interactive decision refinement, ordered phase gates, and adaptive use of bounded independent agents when they materially help. Use when the user asks for a Goal or needs durable work with multiple phases, independent progress, and a validation loop. Preserve one coherent final outcome; use interactive choices only when an undiscoverable decision materially changes scope, authority, compatibility, or acceptance. Do not use for short bug fixes, isolated edits, one-off answers, questions, estimates, or ordinary plans.
 ---
 
 # Goal Prompt Refiner
@@ -39,7 +39,7 @@ Do not equate a large scope with a first-phase deliverable. First determine what
 - If the user says the project should continue until a condition is met, preserve that persistence and make the condition the stopping rule.
 - If the user gives an example with a final target, working rules, ordered phases, and acceptance gates, follow that shape.
 - If the user asks for one clear Goal, produce one Goal covering the complete requested outcome.
-- Put implementation stages inside one Goal as ordered phases with blocking exit gates. A passed phase gate permits the next phase but does not complete the Goal.
+- Put implementation stages inside one Goal as ordered phases with blocking exit gates. A passed phase gate immediately starts the next phase in the same Goal run but does not complete the Goal.
 - Do not replace the final outcome with a discovery-only, baseline-only, prioritization-only, or first-phase Goal unless the user explicitly asks for that narrower result.
 - Do not split a coherent outcome into numbered Goal blocks merely because it contains many modules or phases.
 - Split into multiple Goal blocks only when the user explicitly asks for multiple Goals/roadmap or the outcomes have incompatible stopping conditions and cannot share one final acceptance contract. Explain the reason briefly and ask before changing the requested shape.
@@ -64,6 +64,22 @@ Treat phase completion as an internal transition, not as Goal completion.
 - The Goal may end only after every phase is `passed_locked` and every final acceptance criterion passes.
 - Do not emit a final result, completion claim, or phase-only handoff while any phase or final criterion remains incomplete.
 - If an unavoidable external blocker prevents continuation, keep the Goal incomplete, record the blocker and the next unblock action, and do not claim that the Goal is complete. A phase boundary alone is never an external blocker.
+
+## Use Independent Agents Safely
+
+Use adaptive, manager-style delegation when the runtime exposes reliable agent lifecycle controls and the active phase contains independent work that materially benefits from parallel execution. Do not delegate merely to increase activity; otherwise continue serially.
+
+- The initiating/root agent remains the sole owner of the one Goal, active phase, user communication, canonical record, scope decisions, phase gates, integration, final acceptance, and completion. Delegates never change phase state, update the canonical record, ask the user, expand the Goal, or declare completion.
+- Delegate only concrete tasks within the active phase. Each task must state a task ID, objective, deliverable, read scope, exact write scope, prohibited paths, dependencies, focused validation, expected result format, and blocker or escalation rule. Do not delegate later-phase implementation or validation before the active phase gate passes.
+- Allow read-only exploration, bounded implementation, and task-specific focused checks. A delegate's `completed` report is input to review, not phase-gate evidence.
+- Do not run concurrent write tasks with overlapping scopes. Treat the Goal record, lockfiles, global configuration, generated outputs, repository-wide formatting, shared fixtures, and integration entry points as root-owned. If reliable isolation is unavailable, serialize write tasks; read-only tasks may still run in parallel.
+- Do not let delegates spawn further agents unless the root explicitly authorizes it for that task. Respect the runtime's reported capacity; do not hard-code a concurrency count.
+- Use asynchronous write delegation only when the runtime can reliably wait for required agents and close agents that may still write. Before a phase gate, collect every required result, close remaining write-capable agents, confirm the workspace is quiet, inspect the changes, and run root-owned integration validation.
+- Delegates must return structured status such as `completed`, `blocked`, or `needs_root_decision`, with changed files, evidence, failures, assumptions, risks, and next action. They must return material decisions to the root instead of asking the user directly.
+- Retry a failed delegated task at most once with a changed scope or context. After another failure, let the root take over or record the blocker; never silently skip the required task or retry indefinitely.
+- Use focused checks for delegated changes. Schedule shared, expensive, integration, benchmark, and full-suite checks at the appropriate phase or final gate; do not duplicate them after every small change.
+
+If reliable agent lifecycle controls or write isolation are unavailable, continue serially rather than using asynchronous write delegation.
 
 ## Ground The Conversation
 
@@ -91,8 +107,9 @@ For a Goal that can continue across turns or conversations, define one canonical
 - Create this record only for work that genuinely spans turns or conversations. Keep it proportional: record meaningful changes, completed improvements, decisions, evidence, and risks, not every file read or trivial edit.
 - At the start of every resumed run, read the record, identify the active phase, inspect the current worktree for invalidation signals, and reconcile stale or unsupported entries. Current code, tests, and measured results remain authoritative.
 - Do not re-analyze a `passed_locked` phase during normal resume. Reopen it only under the invalidation rules above, and record the reason.
-- After each meaningful change or phase gate, update the same record before moving on. Do not wait until the end of a long run to reconstruct history.
+- The root agent updates the same record after each meaningful change, delegated result, or phase gate before moving on. Do not wait until the end of a long run to reconstruct history.
 - Keep a compact current-state summary and an append-only change/decision log. Record the Goal objective and constraints, ordered phases, active phase, passed and locked phases, completed improvements, changed files or commits, decisions and rationale, focused validation, benchmark evidence, remaining work, blockers, risks, invalidation events, and the next concrete action.
+- When delegation is used, keep a compact delegation ledger in the same record: task ID, owning phase, agent status, files changed, validation evidence, root review result, blockers, and decisions needed. Delegates do not update this record directly.
 - Link to commands, tests, benchmark artifacts, and relevant files instead of pasting large logs. Never store secrets, credentials, tokens, or unnecessary private data.
 - Updating the record does not require a full test suite. Select validation from the risk and scope of the code change, using focused checks during normal work and broader checks at appropriate acceptance gates.
 - When the Goal finishes, record the final acceptance status, actual evidence, known deviations, and residual risk. Do not mark it complete merely because the record is updated.
@@ -113,7 +130,8 @@ Before output, ensure the single Goal states:
 8. focused validation during work and broader validation at phase and final gates;
 9. a real benchmark protocol whenever performance matters;
 10. pause conditions and blocker handling;
-11. final acceptance gates and one explicit stopping condition.
+11. adaptive delegation rules, root ownership, task boundaries, lifecycle, and result review when agent support is available;
+12. final acceptance gates and one explicit stopping condition.
 
 For performance work, require a reproducible before/after comparison using comparable inputs and the same relevant environment. Record actual throughput, latency/tail latency, CPU, memory, allocation, I/O, lock contention, or concurrency metrics when the workload supports them. Never promise a percentage improvement without a measured baseline.
 
@@ -148,6 +166,9 @@ In <repository or artifact>, complete <single final outcome>.
 ## Durable Goal Record
 ...
 
+## Delegation and Agent Execution
+...
+
 ## Pause and Blocker Handling
 ...
 
@@ -162,6 +183,12 @@ The prompt must make the final state, not the plan, the deliverable. Include lan
 - `missing`, `partial`, or `unverified` required work means the current phase has failed its gate;
 - when a phase is blocked, continue with its direct blockers instead of skipping to later or unrelated phases;
 - after a phase gate passes, record evidence, mark that phase `passed_locked`, and immediately start the next phase in the same Goal run; do not stop at a phase boundary, do not ask the user to resume, and do not return a phase-only result;
+- when agent support is available and useful, delegate bounded independent tasks within the active phase under root-agent ownership; delegation never creates a second Goal or bypasses a phase gate;
+- every delegated task has an explicit read scope, write scope, prohibited paths, dependencies, focused validation, and result format;
+- never run overlapping write scopes concurrently; serialize writes when reliable isolation is unavailable;
+- if reliable agent lifecycle controls or write isolation are unavailable, continue serially;
+- before a phase gate, wait for required delegates, close remaining write-capable delegates, confirm the workspace is quiet, and have the root review and validate their results;
+- delegate reports are not acceptance evidence by themselves, and agents must return material user decisions to the root;
 - on resume, continue from the active phase and skip normal re-analysis of passed and locked phases;
 - reopen a locked phase only when an explicit invalidation condition is evidenced;
 - at the start of each resumed run, read and reconcile the canonical Goal record;
@@ -181,6 +208,11 @@ Do not:
 - invent hard performance numbers, deadlines, compatibility guarantees, or permissions;
 - prescribe a technology such as io_uring, lock-free structures, or a new dependency before evidence supports it;
 - make full-suite testing the default after every edit when focused validation is sufficient;
+- delegate an entire Goal, phase ownership, final acceptance, or canonical-record updates to a child agent;
+- spawn agents without a bounded task, disjoint write scope, reliable lifecycle control, or a material benefit;
+- allow concurrent agents to modify shared records, lockfiles, generated files, global configuration, fixtures, or integration entry points;
+- treat an agent's completion report as proof that a change or phase passed without root review and validation;
+- retry a failed agent indefinitely or run duplicate expensive checks from every delegated task;
 - treat a partial or unverified phase as passed, or begin a later phase before the active phase gate passes;
 - stop, pause, ask the user to resume, or report completion merely because a phase gate passed;
 - switch to unrelated work merely because the active phase is blocked;
@@ -203,6 +235,9 @@ Before returning the Goal, verify that it:
 - defines ordered phases with blocking exit gates without turning them into separate Goals;
 - prevents later phases from starting before the active phase gate passes;
 - requires immediate same-run continuation after a passed phase and forbids phase-boundary stopping or manual-resume handoff;
+- defines adaptive bounded delegation without requiring agents for every task;
+- keeps root-agent ownership of scope, records, phase gates, integration, and completion;
+- defines task contracts, write-scope isolation, lifecycle collection, failure retry, and structured result review;
 - records passed and locked phases plus explicit invalidation conditions;
 - uses focused validation during work and appropriate broad validation at final gates;
 - has a reproducible benchmark protocol when performance matters;

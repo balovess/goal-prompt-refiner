@@ -22,6 +22,10 @@
 | Requirement | Status | Evidence | Gap or risk |
 |---|---|---|---|
 
+## Delegation Ledger
+| Task ID | Phase | Status | Files changed | Validation | Root review | Blocker or decision |
+|---|---|---|---|---|---|---|
+
 ## Change and Decision Log
 | Date | Change or decision | Rationale | Evidence |
 |---|---|---|---|
