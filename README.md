@@ -6,7 +6,8 @@ Goal Prompt Refiner is a Codex plugin for turning an incomplete long-running
 project request into one verified, project-grounded `/goal` prompt. It recovers
 the user's actual desired outcome, inspects the available project context,
 asks only about material decisions, defines evidence-based completion gates, and
-adds a durable project-local continuation record for work that spans runs.
+adds ordered phase gates and a durable project-local continuation record for
+work that spans runs.
 
 ## When to Use It
 
@@ -51,18 +52,36 @@ Use $skill-installer to install https://github.com/balovess/goal-prompt-refiner/
 ## What It Does
 
 1. Determines whether the request warrants a long-running Codex Goal.
-2. Collects repository facts before asking the user for information available in the project.
-3. Resolves only material user decisions, with clear tradeoffs and recommended defaults.
-4. Generates one coherent Goal once the desired outcome is clear; it does not
+2. Uses interactive choices for material decisions instead of static questions
+   or questionnaires.
+3. Collects repository facts before asking the user for information available in the project.
+4. Resolves only material user decisions, with clear tradeoffs and recommended defaults.
+5. Enforces ordered phases: the active phase must pass its exit gate before the
+   next phase starts, then continues into that phase immediately in the same
+   Goal run.
+6. Locks verified phases and resumes from the active phase without re-analyzing
+   locked work unless an explicit invalidation is detected.
+7. Generates one coherent Goal once the desired outcome is clear; it does not
    replace the final outcome with a first-phase Goal.
-5. Converts broad quality claims into project-appropriate tests, benchmarks, artifacts, and stopping conditions.
-6. Defines one canonical Goal record for resumable work, including changes,
+8. Converts broad quality claims into project-appropriate tests, benchmarks, artifacts, and stopping conditions.
+9. Defines one canonical Goal record for resumable work, including changes,
    decisions, validation evidence, remaining work, blockers, and risks.
+10. Uses bounded independent agents adaptively inside the active phase when
+    they materially help, while keeping Goal ownership and final acceptance in
+    the root agent.
+11. Reviews delegated results at the root, protects shared write scopes, and
+    falls back to serial execution when lifecycle control or isolation is not
+    reliable.
 
 ## Use
 
-Invoke `$goal-prompt-refiner`, or describe a durable project objective in
-natural language. For example:
+Invoke `$goal-prompt-refiner` or describe a durable project objective in natural
+language. When a material decision is missing, the skill presents interactive
+choices rather than a static question. It does not start a later phase while the
+current phase gate is incomplete, and it does not stop at a passed phase
+boundary or require a manual resume. When the runtime supports reliable agent
+lifecycle controls, it may also delegate independent bounded tasks within the
+active phase; delegated results still require root review. For example:
 
 ```text
 Use $goal-prompt-refiner to prepare a Goal for a full protocol-compatibility migration. It must preserve behavior, update documentation, and prove any performance claims with benchmarks.
@@ -80,6 +99,7 @@ already has a canonical tracker.
 .agents/plugins/marketplace.json          Git-backed plugin marketplace
 .codex-plugin/plugin.json                 Plugin manifest and UI metadata
 skills/goal-prompt-refiner/SKILL.md       Skill instructions and trigger rules
+skills/goal-prompt-refiner/references/   Detailed templates loaded when needed
 ```
 
 ## License
