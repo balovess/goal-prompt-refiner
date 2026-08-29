@@ -23,6 +23,7 @@ Inspect repository facts before asking. Treat the user's desired end state, exam
 - Ask only about information that cannot be discovered and would change scope, authority, compatibility, or acceptance.
 - Use `request_user_input` when available. Ask one decision at a time, offer two or three meaningful choices with the recommended choice first, and let the control supply `Other`.
 - Maintain a short unresolved-decision list. Remove answered items, record decisions or assumptions, never repeat a question, and stop when the objective and acceptance contract are sufficient.
+- For a vague complaint, first use repository facts to narrow the likely problem. Ask one smallest discriminating outcome question only when the facts cannot distinguish the scope; do not present a broad menu of solution areas or an "all of the above" option. If a low-risk scope is evident, state the assumption and draft the Goal.
 - In Draft, label a least-risk assumption or verification gap. In Execute, pause only when the missing decision is required for the contract. Never loop on missing input.
 - If a named authoritative spec, tracker, baseline, or acceptance source cannot be found, ask for its location. Do not silently substitute an inferred source; in Execute, treat a required missing source as a blocker.
 - Define a reachable first action, finite or explicitly bounded work, measurable acceptance, and one stopping action. Replace "until perfect" or "keep improving" with evidence gates or a documented residual-risk decision.
@@ -47,6 +48,8 @@ The Goal ends only after every phase is `passed_locked` and every final acceptan
 Use focused checks during implementation and after bounded delegated work. Schedule shared integration, expensive benchmark, and full-suite checks at the relevant phase or final gate; do not run the full suite after every small edit or duplicate expensive checks from every delegate.
 
 When performance matters, require comparable before/after workloads in the same relevant environment and record actual supported metrics such as throughput, latency, CPU, memory, allocation, I/O, lock contention, or concurrency. Never invent targets, results, permissions, compatibility promises, or acceptance evidence.
+
+When validating this skill itself, load [references/behavior-tests.md](references/behavior-tests.md) and use its multi-Agent black-box protocol: a persona simulator creates realistic requests, a Goal Agent produces the response, and two independent critics score intent recovery and execution safety. The root Agent reconciles scores, applies at most one targeted revision, and reruns affected cases. Critics do not edit the skill or declare release. Close completed Agents before another batch and do not delegate merely to increase activity.
 
 ## Delegation
 
@@ -91,4 +94,4 @@ In <repository or artifact>, complete <single final outcome>.
 ...
 ```
 
-Before output, verify that the prompt has one final outcome, explicit non-goals, a concrete first action, bounded phases, blocking gates, a completion condition, appropriate validation, and no invented facts. For skill validation or changes, load [references/behavior-tests.md](references/behavior-tests.md); do not load it for ordinary Goal drafting. Use [scripts/measure_prompt_cost.ps1](scripts/measure_prompt_cost.ps1) only when measuring prompt cost or cache layout.
+Before output, verify that the prompt has one final outcome, explicit non-goals, a concrete first action, bounded phases, blocking gates, a completion condition, appropriate validation, and no invented facts. For skill validation or changes, load [references/behavior-tests.md](references/behavior-tests.md); do not load it for ordinary Goal drafting.

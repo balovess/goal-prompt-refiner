@@ -103,36 +103,16 @@ In `Execute mode`, the runtime creates the Goal only after explicit user
 authorization and a complete objective; automatic skill selection alone never
 starts a Goal.
 
-## Token Cost and Cache Layout
-
-The skill keeps stable operating rules in `SKILL.md` and loads the record
-template and behavior tests only when they are relevant. Project facts,
-decisions, test results, and benchmark data belong after the stable prompt
-prefix and should not be inserted into the skill instructions.
-
-Measure bytes, characters, lines, and optional stable-prefix hashes with:
-
-```powershell
-./skills/goal-prompt-refiner/scripts/measure_prompt_cost.ps1 `
-  -Path ./skills/goal-prompt-refiner/SKILL.md `
-  -StablePrefixMarker '## Mode And Scope'
-```
-
-The script does not claim model token counts or cache hit rates. When a
-compatible tokenizer is available, record its result separately; do not add a
-global dependency solely for measurement.
-
-The current before/after measurement is recorded in
-`skills/goal-prompt-refiner/references/token-cost-baseline.md`.
-
 ## Behavior Testing
 
-The skill includes realistic forward cases in
-`skills/goal-prompt-refiner/references/behavior-tests.md`. They cover mode
-selection, finite requirement convergence, phase-gate continuation, bounded
-delegation, focused validation, context-compaction handoff, completion, and
-non-Goal requests. Run them in fresh contexts and inspect the actual response
-and tool trace; the cases are not keyword-only tests.
+The skill includes a multi-Agent black-box protocol and realistic forward cases
+in `skills/goal-prompt-refiner/references/behavior-tests.md`. A persona
+simulator creates the request, a Goal Agent produces the result, and two
+independent critics score it before the root Agent decides whether one targeted
+revision is needed. The cases cover mode selection, requirement convergence,
+phase gates, delegation, focused validation, context-compaction handoff,
+completion, and non-Goal requests. Inspect actual responses and tool traces;
+these are not keyword-only tests.
 
 ## Repository Layout
 
@@ -140,7 +120,6 @@ and tool trace; the cases are not keyword-only tests.
 .agents/plugins/marketplace.json          Git-backed plugin marketplace
 .codex-plugin/plugin.json                 Plugin manifest and UI metadata
 skills/goal-prompt-refiner/SKILL.md       Skill instructions and trigger rules
-skills/goal-prompt-refiner/scripts/       Optional cost measurement utilities
 skills/goal-prompt-refiner/references/   Detailed templates loaded when needed
 ```
 

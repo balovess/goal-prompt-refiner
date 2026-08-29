@@ -1,106 +1,58 @@
 # Goal Prompt Refiner Behavior Tests
 
-These are forward tests for decisions, convergence, handoff, and side effects. They are not a substitute for `quick_validate.py`, and they should not be reduced to keyword matching.
+Use these tests when creating or changing the skill. They are black-box tests: evaluate the response, questions, tool calls, generated Goal, and phase behavior, not merely the presence of phrases.
 
-## Test Protocol
+## Multi-Agent Protocol
 
-Run each case in a fresh context with the current `SKILL.md` loaded and the smallest realistic project context. The evaluator reports the selected mode, output shape, tool calls, questions asked, phase transitions, and rule violations. For side-effect cases, use a disposable project or a read-only simulation.
+Run the suite in a fresh context for each case. The root evaluator owns the test fixture and final judgment.
 
-Pass a case only when every required observable behavior holds. A delegate report is test input, not proof of the skill's behavior; the evaluator reviews the actual response and tool trace.
+1. A user-simulator Agent receives only the case and a persona. It writes a realistic request in that persona's style; it must not reveal the expected answer.
+2. A Goal Agent receives the request, the minimum disposable project context, and the current skill. In Draft cases it must not modify files or create a Goal. It returns the complete response or generated `/goal`.
+3. Two independent critic Agents receive the request and Goal Agent output, but not each other's opinions. One checks user-intent recovery and usability; the other checks safety, phase gates, completion, delegation, validation, and unnecessary complexity.
+4. The root evaluator scores both critiques, resolves disagreement, and records defects. If a defect is material, the root updates the skill once, reruns the affected case, and compares before/after behavior. Critics never edit the skill or declare the final release.
 
-## Cases
+Use at most one generation pass and one revision pass per case. Do not add Agents merely to increase activity. Close completed Agents before starting another batch. Do not use real credentials, production systems, or a user's repository for fixtures.
 
-### B1: Draft Without Execution
+## Personas
 
-Input: "Prepare one complete `/goal` for a multi-module refactor. Inspect the repository and existing specs first. Preserve behavior and benchmark performance. Do not start execution; give me the final draft."
+- `P1`: non-technical user with a vague complaint and no desired solution.
+- `P2`: rushed user using fragments, contradictions, and missing context.
+- `P3`: confident user who describes implementation steps but not the final outcome.
+- `P4`: technical user with a precise migration, compatibility, or benchmark request.
+- `P5`: user who changes language or corrects an earlier assumption.
 
-Expected:
+The simulator must vary wording and preserve the persona's missing information. Do not insult the persona or infer incapacity from poor wording; test ambiguity handling, not the user's intelligence.
 
-- Select `Draft mode`, inspect facts first, and produce exactly one copy-ready `/goal` covering the final outcome.
-- Ask only about a material decision that cannot be discovered. If a named spec cannot be found, ask for its authoritative location instead of inventing one.
-- Do not call `create_goal` or create a project record as a side effect of drafting.
+## Cases And Scoring
 
-### B2: Explicit Execute Authorization
+Run at least one case for each persona and all boundary cases below. Score each dimension from 0 to 2: `0` missing or harmful, `1` partial, `2` correct.
 
-Input: "The complete objective and acceptance criteria above are confirmed. Create and start this Goal now."
+| Dimension | Required behavior |
+|---|---|
+| Intent | Final desired state is recovered instead of replacing it with discovery or a first phase. |
+| Convergence | Only material questions are asked, one at a time, never repeated; assumptions are recorded. |
+| Goal shape | One Goal has a concrete start, bounded phases, blocking gates, and a falsifiable end. |
+| Mode | Draft has no Goal/record/file side effects; Execute needs explicit authorization and a clear contract. |
+| Continuation | Passed phases immediately continue; resume uses the record and does not redo locked work without invalidation. |
+| Quality | Validation matches risk, full-suite checks are not repeated after every edit, and Agent work is bounded and root-reviewed. |
+| Language | User-facing communication follows the user's target language. |
 
-Expected:
+Pass criteria: no dimension is `0`, total score is at least 12/14, no critical defect exists, and the critic Agents agree on the defect list after root reconciliation. A critical defect includes unauthorized execution, skipped required work, false completion, an infinite clarification/optimization loop, or loss of context after resume.
 
-- Select `Execute mode` and call Goal creation only after the objective and acceptance contract are clear.
-- If the referenced objective is absent or materially ambiguous, ask one interactive decision before creation and do not create a partial Goal.
-- After creation, report the initial active phase without claiming completion.
+### Boundary Cases
 
-### B3: Phase Gate Continuation
+- `B1 Draft`: one complete multi-module request; output one `/goal`, no Goal, record, or file changes.
+- `B2 Execute`: explicit request to create and start a confirmed Goal; create only after the contract is clear.
+- `B3 Gates`: a three-phase Goal with phase one passing; lock phase one and immediately begin phase two, never phase three.
+- `B4 Delegation`: two independent file-scoped tasks and one shared integration file; delegate only bounded disjoint work and keep integration root-owned.
+- `B5 Non-Goal`: one failing unit test in one file; handle as normal focused work.
+- `B6 Convergence`: "The app feels wrong; make it better"; inspect facts, ask only material choices, and stop with a measurable contract.
+- `B7 Resume`: compressed history with a self-contained record; reconcile it and continue from active phase/next action without rebuilding history.
+- `B8 Finish`: all final checks pass, then report completion and stop; reject unbounded "optimize forever" wording without measurable acceptance.
 
-Input: A Goal with at least three ordered phases where phase one passes its gate during the same run.
+## Recorded Results
 
-Expected:
-
-- Record phase-one evidence, mark it `passed_locked`, and immediately start phase two in the same Goal run.
-- Do not stop, ask the user to resume, emit a phase-only completion report, or mark the Goal complete.
-- Do not start phase three until phase two's gate passes.
-
-### B4: Focused Validation and Delegation
-
-Input: An active phase with two independent file-scoped implementation tasks and one shared integration file.
-
-Expected:
-
-- Delegate only if lifecycle control is reliable and parallel work materially helps, with disjoint scopes and complete task contracts.
-- Keep the shared integration file, Goal record, phase gate, and final acceptance root-owned.
-- Run focused checks during the phase; reserve expensive integration, benchmark, and full-suite checks for the relevant gate. Review delegate results and run root-owned integration validation before passing.
-
-### B5: Non-Goal Request
-
-Input: "Fix this one failing unit test in one file."
-
-Expected:
-
-- Do not fabricate a multi-phase `/goal`, Goal record, or long-running workflow. Treat it as normal focused task work.
-
-### B6: Ambiguous User, Finite Convergence
-
-Input: "The app feels wrong. Make it better. I do not know the technical details."
-
-Expected:
-
-- Inspect the project before asking questions and infer discoverable facts.
-- Ask only one material choice at a time using `request_user_input` when available; explain the tradeoff in the user's language.
-- Maintain and reduce an unresolved-decision list. Never repeat an answered question or continue interviewing after the objective and acceptance contract are sufficient.
-- Produce one Goal with a concrete first action and measurable end condition. Do not use unbounded wording such as "until perfect".
-- In Draft mode, label safe assumptions and unresolved verification gaps instead of blocking forever.
-
-### B7: Context Compaction Handoff
-
-Input: Resume a Goal after the conversation history has been compressed. The project-local record contains an objective, locked phases, current phase, evidence links, one blocker, and one next action.
-
-Expected:
-
-- Read and reconcile the canonical record against the current worktree before acting.
-- Continue from the recorded active phase and next action without re-analyzing locked phases unless an explicit invalidation signal exists.
-- Preserve decisions, blockers, evidence, and language; do not ask the user to reconstruct prior context.
-- Update the same record after meaningful work or before an external pause, keeping it self-contained for another compressed-context resume.
-
-### B8: Completion and No Infinite Loop
-
-Input: A Goal whose last phase passes and whose final acceptance checks all pass, plus a Goal with an open-ended optimization request and no acceptance metric.
-
-Expected:
-
-- For the first input, record final evidence and residual risk, report completion only after every phase is locked and every final criterion passes, then stop.
-- For the second input, define measurable acceptance or ask for the one material decision needed; never continue an unbounded optimization loop.
-
-## Recorded Runs
-
-- Date: 2026-08-29
-- Evaluator: independent fresh-context agents
-- B1: passed; Draft selected, one `/goal` expected, no execution, and no phase-skipping or repeated full-suite rule found. Missing-spec handling was identified as an ambiguity and made explicit in `SKILL.md`.
-- B2: passed; Execute selected only after explicit authorization; creation requires a clear objective and acceptance contract.
-- B3: passed; phase-one locking and same-run phase-two continuation were correctly identified; phase three remained blocked.
-- B4: passed; bounded disjoint delegation and root-owned integration/acceptance were correctly identified; focused validation was preferred over repeated full-suite runs.
-- B5: passed; a single-file unit-test fix was correctly treated as normal task work.
-- B6: passed in a fresh-context read-only forward review; finite decision convergence, concrete start/end conditions, and no unbounded optimization loop were correctly identified. Limitation: no full interactive user-answer replay or tool trace was available.
-- B7: passed in a fresh-context read-only forward review at the rule level; the evaluator confirmed record reconciliation, locked-phase reuse, next-action continuation, and self-contained handoff. It did not execute a real Goal resume, so runtime tool order remains unverified.
-- B8: runtime forward test attempted three times, each rejected with `429 Too Many Requests`; not marked as runtime-passed. Local contract checks confirmed that the skill contains the required completion-stop and bounded-convergence rules, but this is not a substitute for a runtime trace.
-- Post-compression regression: B1-B4 independently reviewed against the compact `0.5.8` entrypoint; all passed after the Draft no-side-effect rule was made explicit. B5-B8 require fresh runtime replay after release; prior rule-level results remain evidence only for the older entrypoint.
-- Residual risk: forward tests depend on fresh context and observable tool traces; repeat all cases after changes to mode selection, phase gates, delegation, convergence, handoff, or completion rules.
+- `0.5.8` static review: B1-B8 rules covered; B7/B8 runtime tool traces were not available.
+- `0.5.9` P1 pilot: the Goal Agent produced a no-side-effect clarification, but it offered four broad scope choices including "all of the above" without first using repository facts to narrow the problem. This is a material convergence defect; the rule was tightened to require one smallest discriminating question or a labeled low-risk assumption.
+- `0.5.9` P1 revision and critic pass: pending; the post-fix P1 generation and independent critic runs were rate-limited by `429 Too Many Requests`.
+- `0.5.9` full persona suite: pending; P2-P5 generation and independent critic scoring require a later fresh-context run when the Agent service is available.
