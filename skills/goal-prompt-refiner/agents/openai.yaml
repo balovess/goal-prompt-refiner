@@ -1,6 +1,6 @@
 interface:
   display_name: "Goal Prompt Refiner"
   short_description: "Shape long work into one verified Goal"
-  default_prompt: "Use $goal-prompt-refiner to inspect the project and produce one copy-ready /goal with ordered phases; require each active phase gate to pass, immediately continue to the next phase in the same Goal run, adaptively delegate bounded independent tasks inside the active phase when useful, and use interactive choices for material decisions instead of static questions."
+  default_prompt: "Use $goal-prompt-refiner in Draft mode by default to inspect the project and produce one copy-ready /goal in the user's target language with ordered phases; use Execute mode only when I explicitly authorize creating or starting the Goal, require each active phase gate to pass, immediately continue to the next phase in the same Goal run, adaptively delegate bounded independent tasks inside the active phase when useful, and use interactive choices for material decisions instead of static questions."
 policy:
   allow_implicit_invocation: true

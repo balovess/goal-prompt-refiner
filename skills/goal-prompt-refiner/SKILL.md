@@ -1,11 +1,21 @@
 ---
 name: goal-prompt-refiner
-description: Turn a vague or detailed long-running project request into one copy-ready, project-grounded, verifiable Codex `/goal` prompt through focused interactive decision refinement, ordered phase gates, and adaptive use of bounded independent agents when they materially help. Use when the user asks for a Goal or needs durable work with multiple phases, independent progress, and a validation loop. Preserve one coherent final outcome; use interactive choices only when an undiscoverable decision materially changes scope, authority, compatibility, or acceptance. Do not use for short bug fixes, isolated edits, one-off answers, questions, estimates, or ordinary plans.
+description: Turn a vague or detailed long-running project request into one project-grounded, verifiable Codex `/goal`, either as a copy-ready draft or, only with explicit user authorization, by creating and starting the Goal. Use focused interactive decision refinement, ordered phase gates, adaptive bounded agent delegation, and resumable evidence. Do not use for short bug fixes, isolated edits, one-off answers, questions, estimates, or ordinary plans.
 ---
 
 # Goal Prompt Refiner
 
 Recover the user's actual desired outcome from an ambiguous request, then produce one durable Goal with an observable final state. Put implementation work into ordered phases with hard transition gates inside that Goal; a passed phase gate must immediately start the next phase in the same Goal run and never completes the whole Goal. For work that may span multiple `/goal` runs, include a durable, project-local continuation record so later runs can resume from verified state instead of relying on conversation memory.
+
+## Select The Mode
+
+Choose exactly one mode before drafting or executing:
+
+- `Draft mode` is the default. Analyze the request and project, resolve only material decisions, then output exactly one copy-ready `/goal` prompt. Do not create or start a Goal.
+- `Execute mode` is available only when the user explicitly asks to create, start, run, or execute the Goal. Resolve material decisions first, then create the single Goal with the final objective and continue under its phase, delegation, validation, and completion rules.
+- Do not infer `Execute mode` from a request to explain, refine, write, or prepare a Goal. Do not call `create_goal` merely because the skill was automatically selected or explicitly invoked.
+- If the user asks to execute but the final objective or acceptance contract still has material ambiguity, use interactive choices first. Do not create a partial Goal.
+- If the runtime cannot create a Goal, return to `Draft mode`, provide the copy-ready prompt, and explain the limitation in the target language; do not claim execution started.
 
 ## Qualify The Request
 
@@ -26,9 +36,20 @@ Ask only when the answer cannot be discovered, materially changes scope, authori
 - Present one decision at a time with two or three mutually exclusive options; put the recommended option first and state each tradeoff concisely.
 - Do not manually add `Other` when the control supplies a free-form alternative. Preserve the selected option as an explicit Goal constraint or decision.
 - After each selection, update the working understanding. Do not repeat settled questions or ask about routine implementation details.
-- Once the final objective and acceptance contract are clear, produce exactly one copy-ready `/goal` prompt.
+- In `Draft mode`, once the final objective and acceptance contract are clear, produce exactly one copy-ready `/goal` prompt.
+- In `Execute mode`, once the final objective and acceptance contract are clear, use the runtime's Goal creation capability to start the one Goal, then report the created Goal and its initial active phase.
 
 If the initial request already defines the final outcome and acceptance gates, draft directly. Interactive choices are for material ambiguity, not a mandatory interview. If no choice control is available, use the shortest textual fallback and do not invent a decision.
+
+## Match The Goal Language
+
+Use the user's target language as the primary language for all user-facing communication. Prefer an explicitly requested output language; otherwise use the dominant language of the current request and its examples.
+
+- Use the target language for clarification, interactive choices, progress updates, blocker explanations, the generated `/goal`, phase reports, and the final result.
+- If the user explicitly switches language or asks for a translation, follow the new instruction from that point onward.
+- Keep code, commands, file paths, API names, identifiers, status values, and quoted source text unchanged unless the user asks to translate them.
+- Do not mix languages for convenience. If a technical term must remain in its original form, explain it in the target language.
+- If the target language cannot be inferred and the choice materially affects the deliverable, ask one interactive language choice before drafting; otherwise infer it without interrupting the workflow.
 
 ## Understand The Real Goal
 
@@ -139,7 +160,9 @@ For compatibility or migration work, require a matrix that maps source behavior 
 
 ## Produce The Goal
 
-Once the user's actual outcome is clear enough, answer in the user's language. Lead with exactly one copy-ready code block beginning with `/goal`. Keep any surrounding explanation to one or two sentences.
+In `Draft mode`, once the user's actual outcome is clear enough, answer in the user's target language and lead with exactly one copy-ready code block beginning with `/goal`. Keep any surrounding explanation to one or two sentences.
+
+In `Execute mode`, create the Goal only after explicit user authorization and a clear final objective. Do not output a draft as a substitute for execution or claim that execution started before the Goal creation call succeeds. After successful creation, report the Goal's initial state in the target language; the created Goal, not this skill response, owns ongoing implementation and completion.
 
 Use only sections relevant to the project, typically:
 
@@ -184,6 +207,7 @@ The prompt must make the final state, not the plan, the deliverable. Include lan
 - when a phase is blocked, continue with its direct blockers instead of skipping to later or unrelated phases;
 - after a phase gate passes, record evidence, mark that phase `passed_locked`, and immediately start the next phase in the same Goal run; do not stop at a phase boundary, do not ask the user to resume, and do not return a phase-only result;
 - when agent support is available and useful, delegate bounded independent tasks within the active phase under root-agent ownership; delegation never creates a second Goal or bypasses a phase gate;
+- use the user's target language for all user-facing Goal communication, while preserving commands, paths, identifiers, status values, and quoted source text;
 - every delegated task has an explicit read scope, write scope, prohibited paths, dependencies, focused validation, and result format;
 - never run overlapping write scopes concurrently; serialize writes when reliable isolation is unavailable;
 - if reliable agent lifecycle controls or write isolation are unavailable, continue serially;
@@ -229,6 +253,7 @@ Before returning the Goal, verify that it:
 
 - represents one durable outcome rather than an arbitrary collection of tasks;
 - follows the user's requested shape and language;
+- uses the user's target language consistently across interaction, generated Goal text, progress, blockers, and final reporting;
 - captures the user's actual desired final state, not merely the easiest first step;
 - is grounded in discovered project facts and confirmed user decisions;
 - distinguishes authoritative requirements from proposals and measurements from claims;

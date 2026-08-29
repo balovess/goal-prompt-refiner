@@ -3,6 +3,7 @@
 ## Objective and Constraints
 - Objective: <final outcome>
 - Constraints: <compatibility, platform, authority, or other binding limits>
+- Mode: draft | execute
 
 ## Ordered Phase Gates
 | Order | Phase | Required outcomes | Gate evidence | Status |

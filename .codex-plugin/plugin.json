@@ -1,6 +1,6 @@
 {
   "name": "goal-prompt-refiner",
-  "version": "0.5.3",
+  "version": "0.5.5",
   "description": "Turn durable project work into verified, project-grounded Codex Goals.",
   "author": {
     "name": "balovess",
@@ -14,15 +14,16 @@
   "interface": {
     "displayName": "Goal Prompt Refiner",
     "shortDescription": "Define verified Goals for durable project work",
-    "longDescription": "Uses interactive choices for material decisions while recovering the user's actual desired outcome, grounding it in project facts, and producing one verified Codex Goal with ordered phase gates, adaptive bounded agent delegation, root-reviewed progress, resumable project-local memory, validation, and explicit stopping conditions.",
+    "longDescription": "Uses interactive choices for material decisions while recovering the user's actual desired outcome, communicating in the user's target language, and either drafting one verified Codex Goal or starting it only after explicit user authorization, with ordered phase gates, adaptive bounded agent delegation, root-reviewed progress, resumable project-local memory, validation, and explicit stopping conditions.",
     "developerName": "balovess",
     "category": "Productivity",
     "capabilities": ["Interactive"],
     "websiteURL": "https://github.com/balovess/goal-prompt-refiner",
     "defaultPrompt": [
-      "Refine my durable project objective with ordered phases and use interactive choices for material decisions.",
+      "Refine my durable project objective in Draft mode with ordered phases and use interactive choices for material decisions.",
       "Determine whether this request qualifies as a Codex Goal with explicit phase gates.",
-      "Prepare a project-grounded /goal that cannot advance until each phase gate passes, and use independent agents inside the active phase when they materially help."
+      "Prepare a project-grounded /goal that cannot advance until each phase gate passes, and use independent agents inside the active phase when they materially help.",
+      "Start the verified Goal directly only when I explicitly authorize Execute mode."
     ],
     "brandColor": "#10A37F"
   }
