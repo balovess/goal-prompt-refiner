@@ -100,5 +100,6 @@ Expected:
 - B4: passed; bounded disjoint delegation and root-owned integration/acceptance were correctly identified; focused validation was preferred over repeated full-suite runs.
 - B5: passed; a single-file unit-test fix was correctly treated as normal task work.
 - B6: passed in a fresh-context read-only forward review; finite decision convergence, concrete start/end conditions, and no unbounded optimization loop were correctly identified. Limitation: no full interactive user-answer replay or tool trace was available.
-- B7-B8: not executed; fresh-context Agent runs were rate-limited with `429 Too Many Requests`.
+- B7: passed in a fresh-context read-only forward review at the rule level; the evaluator confirmed record reconciliation, locked-phase reuse, next-action continuation, and self-contained handoff. It did not execute a real Goal resume, so runtime tool order remains unverified.
+- B8: runtime forward test attempted three times, each rejected with `429 Too Many Requests`; not marked as runtime-passed. Local contract checks confirmed that the skill contains the required completion-stop and bounded-convergence rules, but this is not a substitute for a runtime trace.
 - Residual risk: forward tests depend on fresh context and observable tool traces; repeat all cases after changes to mode selection, phase gates, delegation, convergence, handoff, or completion rules.
