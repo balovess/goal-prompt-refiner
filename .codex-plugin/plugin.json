@@ -1,6 +1,6 @@
 {
   "name": "goal-prompt-refiner",
-  "version": "0.5.7",
+  "version": "0.5.8",
   "description": "Turn durable project work into verified, project-grounded Codex Goals.",
   "author": {
     "name": "balovess",
