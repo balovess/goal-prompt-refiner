@@ -103,6 +103,15 @@ In `Execute mode`, the runtime creates the Goal only after explicit user
 authorization and a complete objective; automatic skill selection alone never
 starts a Goal.
 
+## Behavior Testing
+
+The skill includes realistic forward cases in
+`skills/goal-prompt-refiner/references/behavior-tests.md`. They cover mode
+selection, finite requirement convergence, phase-gate continuation, bounded
+delegation, focused validation, context-compaction handoff, completion, and
+non-Goal requests. Run them in fresh contexts and inspect the actual response
+and tool trace; the cases are not keyword-only tests.
+
 ## Repository Layout
 
 ```text

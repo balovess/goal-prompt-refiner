@@ -36,6 +36,8 @@ Ask only when the answer cannot be discovered, materially changes scope, authori
 - Present one decision at a time with two or three mutually exclusive options; put the recommended option first and state each tradeoff concisely.
 - Do not manually add `Other` when the control supplies a free-form alternative. Preserve the selected option as an explicit Goal constraint or decision.
 - After each selection, update the working understanding. Do not repeat settled questions or ask about routine implementation details.
+- Treat refinement as a finite convergence loop: maintain a short list of unresolved material decisions, ask at most one decision at a time, remove each decision when answered, and stop asking once the final objective and acceptance contract are sufficient. Never ask the same decision again; record the answer or assumption.
+- If a material decision remains unanswered, use the least-risk assumption in Draft mode and label it for confirmation in the prompt; in Execute mode, pause only when that decision is required to define scope, authority, compatibility, or final acceptance. Do not loop on missing input.
 - In `Draft mode`, once the final objective and acceptance contract are clear, produce exactly one copy-ready `/goal` prompt.
 - In `Execute mode`, once the final objective and acceptance contract are clear, use the runtime's Goal creation capability to start the one Goal, then report the created Goal and its initial active phase.
 
@@ -62,6 +64,7 @@ Do not equate a large scope with a first-phase deliverable. First determine what
 - If the user asks for one clear Goal, produce one Goal covering the complete requested outcome.
 - Put implementation stages inside one Goal as ordered phases with blocking exit gates. A passed phase gate immediately starts the next phase in the same Goal run but does not complete the Goal.
 - Do not replace the final outcome with a discovery-only, baseline-only, prioritization-only, or first-phase Goal unless the user explicitly asks for that narrower result.
+- Ensure the Goal has a reachable start condition, finite or explicitly bounded phases, and a falsifiable end condition. Convert open-ended wording such as "keep improving" into measurable acceptance gates or a documented residual-risk decision.
 - Do not split a coherent outcome into numbered Goal blocks merely because it contains many modules or phases.
 - Split into multiple Goal blocks only when the user explicitly asks for multiple Goals/roadmap or the outcomes have incompatible stopping conditions and cannot share one final acceptance contract. Explain the reason briefly and ask before changing the requested shape.
 
@@ -116,6 +119,7 @@ Record only facts that affect the Goal:
 - actual constraints such as platform, toolchain, permissions, and unavailable dependencies.
 
 Do not invent facts, commands, metrics, deadlines, permissions, compatibility promises, performance targets, or acceptance evidence. Treat benchmark claims in plans as hypotheses until measured. Distinguish accepted requirements from proposals and aspirational designs.
+If the user names an authoritative spec, tracker, baseline, or acceptance source that cannot be located, ask for its location with one interactive choice when available; do not silently replace it with an inferred source. If no such source was identified, record the missing source as an explicit verification gap in Draft mode and as a blocker in Execute mode when it is required for final acceptance.
 
 Preserve dirty worktrees. Do not revert user changes. If before/after comparison is required, describe a recoverable baseline using a temporary copy, worktree, or snapshot.
 
@@ -134,8 +138,11 @@ For a Goal that can continue across turns or conversations, define one canonical
 - Link to commands, tests, benchmark artifacts, and relevant files instead of pasting large logs. Never store secrets, credentials, tokens, or unnecessary private data.
 - Updating the record does not require a full test suite. Select validation from the risk and scope of the code change, using focused checks during normal work and broader checks at appropriate acceptance gates.
 - When the Goal finishes, record the final acceptance status, actual evidence, known deviations, and residual risk. Do not mark it complete merely because the record is updated.
+- Keep the record self-contained enough for a fresh context after compaction: the current objective, active phase, locked phases, unresolved decisions, blockers, exact next action, and evidence links must be understandable without prior conversation. Update it before handing off, pausing for an external blocker, or ending a substantial run.
 
 Use [references/goal-record-template.md](references/goal-record-template.md) for the durable record unless the repository already defines an equivalent. Load it only for Goals that span runs.
+
+When evaluating or changing this skill, use [references/behavior-tests.md](references/behavior-tests.md) for realistic forward tests. Load it only for skill validation; it is not part of ordinary Goal drafting.
 
 ## Define The Contract
 
@@ -153,6 +160,8 @@ Before output, ensure the single Goal states:
 10. pause conditions and blocker handling;
 11. adaptive delegation rules, root ownership, task boundaries, lifecycle, and result review when agent support is available;
 12. final acceptance gates and one explicit stopping condition.
+
+The generated Goal must also define how refinement and execution converge: no repeated questions, no unbounded improvement loop, a concrete first action, and a concrete final verification and completion action.
 
 For performance work, require a reproducible before/after comparison using comparable inputs and the same relevant environment. Record actual throughput, latency/tail latency, CPU, memory, allocation, I/O, lock contention, or concurrency metrics when the workload supports them. Never promise a percentage improvement without a measured baseline.
 
@@ -246,6 +255,8 @@ Do not:
 - make a roadmap or progress document the final deliverable;
 - declare the Goal complete because one phase gate, module, or milestone passed, or because one subsystem is blocked.
 - end the Goal before every phase is locked and every final acceptance criterion has passed.
+- repeat an unanswered question indefinitely, or make progress depend on recovering details that are not recorded in the canonical Goal record;
+- use "until perfect", "continue optimizing", or equivalent unbounded language without measurable acceptance criteria and a residual-risk rule.
 
 ## Final Check
 
@@ -268,5 +279,6 @@ Before returning the Goal, verify that it:
 - has a reproducible benchmark protocol when performance matters;
 - defines one resumable Goal record when the work can span runs, with reconciliation and update rules;
 - has a falsifiable stopping condition and explicit residual-risk reporting;
+- has a concrete start action, bounded convergence rules, and a self-contained handoff record suitable for context compaction;
 - permits Goal completion only after every phase and final acceptance gate passes; and
 - contains no invented facts or unnecessary complexity.
