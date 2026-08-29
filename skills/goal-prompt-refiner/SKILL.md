@@ -49,8 +49,6 @@ Use focused checks during implementation and after bounded delegated work. Sched
 
 When performance matters, require comparable before/after workloads in the same relevant environment and record actual supported metrics such as throughput, latency, CPU, memory, allocation, I/O, lock contention, or concurrency. Never invent targets, results, permissions, compatibility promises, or acceptance evidence.
 
-When validating this skill itself, load [references/behavior-tests.md](references/behavior-tests.md) and use its multi-Agent black-box protocol: a persona simulator creates realistic requests, a Goal Agent produces the response, and two independent critics score intent recovery and execution safety. The root Agent reconciles scores, applies at most one targeted revision, and reruns affected cases. Critics do not edit the skill or declare release. Close completed Agents before another batch and do not delegate merely to increase activity.
-
 ## Delegation
 
 Use independent Agents only when reliable lifecycle control exists and parallel work materially helps. The root Agent owns the Goal, scope, user decisions, active phase, record, integration, gates, final acceptance, and completion.
@@ -94,4 +92,4 @@ In <repository or artifact>, complete <single final outcome>.
 ...
 ```
 
-Before output, verify that the prompt has one final outcome, explicit non-goals, a concrete first action, bounded phases, blocking gates, a completion condition, appropriate validation, and no invented facts. For skill validation or changes, load [references/behavior-tests.md](references/behavior-tests.md); do not load it for ordinary Goal drafting.
+Before output, verify that the prompt has one final outcome, explicit non-goals, a concrete first action, bounded phases, blocking gates, a completion condition, appropriate validation, and no invented facts.

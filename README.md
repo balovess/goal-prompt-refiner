@@ -103,17 +103,6 @@ In `Execute mode`, the runtime creates the Goal only after explicit user
 authorization and a complete objective; automatic skill selection alone never
 starts a Goal.
 
-## Behavior Testing
-
-The skill includes a multi-Agent black-box protocol and realistic forward cases
-in `skills/goal-prompt-refiner/references/behavior-tests.md`. A persona
-simulator creates the request, a Goal Agent produces the result, and two
-independent critics score it before the root Agent decides whether one targeted
-revision is needed. The cases cover mode selection, requirement convergence,
-phase gates, delegation, focused validation, context-compaction handoff,
-completion, and non-Goal requests. Inspect actual responses and tool traces;
-these are not keyword-only tests.
-
 ## Repository Layout
 
 ```text
